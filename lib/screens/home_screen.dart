@@ -143,7 +143,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 DataCell(
                                   ElevatedButton(
                                     onPressed: () {},
-                                    child: const Text('Update'),
+                                    child: const Text(
+                                      'Update',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                      ),
+                                    ),
                                   ),
                                 )
                               ],
