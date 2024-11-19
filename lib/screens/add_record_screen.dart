@@ -32,9 +32,6 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Add Record"),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -83,7 +80,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 labelText: 'Name',
                                 //hintText: "Name",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -100,7 +97,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: "NIC",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -117,7 +114,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: "Address",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -134,7 +131,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: "Mobile No",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -150,7 +147,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: 'Status',
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -179,7 +176,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: "No of Family Members",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -195,7 +192,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: "No of Child",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -211,7 +208,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: 'Type of Insurance',
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -248,7 +245,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: "Present Insurer",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -264,7 +261,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: "Monthly Income",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -280,7 +277,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: "Monthly Expences",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,
@@ -296,7 +293,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               decoration: InputDecoration(
                                 labelText: "Remark",
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 contentPadding: const EdgeInsets.symmetric(
                                   vertical: 15,

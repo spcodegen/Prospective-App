@@ -40,7 +40,9 @@ class _MainScreenState extends State<MainScreen> {
       ), // Pass the username here
       AddRecordScreen(),
       MakePaymentScreen(),
-      MyCollectionScreen(),
+      MyCollectionScreen(
+        username: widget.username,
+      ),
       ProfileScreen(),
     ];
   }

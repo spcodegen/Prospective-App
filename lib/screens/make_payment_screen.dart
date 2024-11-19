@@ -57,26 +57,41 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Payment Details")),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 25),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Icon(Icons.article, color: Colors.blue, size: 30),
+                    SizedBox(width: 8),
+                    Text(
+                      "Policy Search",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Text(
+                  "Enter Policy Number",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 8),
                 TextFormField(
                   controller: _policyNoController,
                   decoration: InputDecoration(
-                    labelText: "Enter Policy Number",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 20,
-                    ),
+                    hintText: "Policy Number",
+                    border: OutlineInputBorder(),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -113,10 +128,24 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                       label: "Policy Status",
                       value: policyData["polStatus"] ?? "N/A"),
                   SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Icon(Icons.attach_money, color: Colors.green, size: 30),
+                      SizedBox(width: 8),
+                      Text(
+                        "Payment Details",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
                   if (policyData["policyPaymentResponses"] != null &&
                       (policyData["policyPaymentResponses"] as List).isNotEmpty)
                     PaginatedDataTable(
-                      header: Text("Payment Details"),
+                      header: null,
                       columns: const [
                         DataColumn(label: Text("Type")),
                         DataColumn(label: Text("Payment")),
