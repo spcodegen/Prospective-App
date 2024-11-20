@@ -43,7 +43,10 @@ class _MainScreenState extends State<MainScreen> {
       MyCollectionScreen(
         username: widget.username,
       ),
-      ProfileScreen(),
+      ProfileScreen(
+        name: widget.name,
+        branch: widget.branch,
+      ),
     ];
   }
 

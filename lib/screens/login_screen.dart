@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_coop/constants/colors.dart';
 import 'package:flutter_application_coop/screens/main_screen.dart';
-import 'package:flutter_application_coop/widgets/custom_button.dart';
+import 'package:flutter_application_coop/services/user_services.dart';
 import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
@@ -144,34 +144,32 @@ class _LoginScreenState extends State<LoginScreen> {
         // Decode the JSON response
         final Map<String, dynamic> jsonData = json.decode(response.body);
 
-        // Check if "percode" and "pw" fields match the input
-        final String? percode = jsonData['percode'];
-        final String? password = jsonData['pw'];
+        //get data json object using
         final String name = jsonData['name'];
         final String branch = jsonData['branch'];
+        //save the userName,name,branch in the device storage
+        await UserServices.storeUserDetails(
+          userName: userName,
+          name: name,
+          branch: branch,
+          context: context,
+        );
 
-        // Return true if both match; otherwise, return false
-        if (percode == userName && password == password) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainScreen(
-                username: userName,
-                name: name,
-                branch: branch,
-              ), // Pass username
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid username or password')),
-          );
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainScreen(
+              username: userName,
+              name: name,
+              branch: branch,
+            ), // Pass username
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Error fetching user data: ${response.statusCode}')),
+          const SnackBar(
+            content: Text('Invalid username or password'),
+          ),
         );
       }
     } catch (e) {
