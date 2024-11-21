@@ -158,11 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MainScreen(
-              username: userName,
-              name: name,
-              branch: branch,
-            ), // Pass username
+            builder: (context) => MainScreen(), // Pass username
           ),
         );
       } else {

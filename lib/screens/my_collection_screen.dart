@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyCollectionScreen extends StatefulWidget {
-  final String username;
   const MyCollectionScreen({
     super.key,
-    required this.username,
   });
 
   @override
@@ -15,6 +14,8 @@ class MyCollectionScreen extends StatefulWidget {
 }
 
 class _MyCollectionScreenState extends State<MyCollectionScreen> {
+  //for store the username,name,branch
+  String usernameNew = "";
   DateTime? fromDate;
   DateTime? toDate;
   List<dynamic> collectionData = [];
@@ -22,6 +23,19 @@ class _MyCollectionScreenState extends State<MyCollectionScreen> {
 
   final apiBaseUrl =
       'http://client.cooplife.lk:8006/PolicyPaymentDetails/DateRange';
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserData(); // Fetch the username from SharedPreferences
+  }
+
+  Future<void> _getUserData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      usernameNew = pref.getString('username') ?? '';
+    });
+  }
 
   Future<void> fetchData() async {
     if (fromDate == null || toDate == null) {
@@ -32,11 +46,18 @@ class _MyCollectionScreenState extends State<MyCollectionScreen> {
       return;
     }
 
+    if (usernameNew.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Username not available')),
+      );
+      return;
+    }
+
     final formattedFromDate = DateFormat('yyyy-MM-dd').format(fromDate!);
     final formattedToDate = DateFormat('yyyy-MM-dd').format(toDate!);
 
     final apiUrl =
-        '$apiBaseUrl/${widget.username}/$formattedFromDate/$formattedToDate';
+        '$apiBaseUrl/$usernameNew/$formattedFromDate/$formattedToDate';
 
     setState(() {
       isLoading = true;

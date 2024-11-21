@@ -1,19 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_coop/constants/colors.dart';
+import 'package:flutter_application_coop/model/client.dart';
 import 'package:flutter_application_coop/services/user_services.dart';
 import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
-  final String username;
-  final String name;
-  final String branch;
-
   const HomeScreen({
     super.key,
-    required this.username,
-    required this.name,
-    required this.branch,
   });
 
   @override
@@ -21,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //for store the username,name,branch
+  // For storing the username, name, and branch
   String usernameNew = "";
   String name = "";
   String branch = "";
@@ -66,8 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
         print('API Response: $data');
 
         setState(() {
-          filteredData =
-              data.map((client) => client as Map<String, dynamic>).toList();
+          filteredData = data
+              .map((clientData) => clientData as Map<String, dynamic>)
+              .toList();
         });
       } else {
         print(
@@ -114,14 +109,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         Text(
-                          "Welcome ${widget.name}",
+                          "Welcome $name",
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
-                          widget.branch,
+                          branch,
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
@@ -168,15 +163,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             DataColumn(label: Text("NIC")),
                             DataColumn(label: Text("Action")),
                           ],
-                          rows: filteredData!.map((client) {
+                          rows: filteredData!.map((clientData) {
+                            final client = Client.fromJson(clientData);
                             return DataRow(
                               cells: [
-                                DataCell(Text(client['name'])),
-                                DataCell(Text(client['nic'])),
-                                //DataCell(Text(client['mobile'].toString())),
+                                DataCell(Text(client.name)),
+                                DataCell(Text(client.nic)),
                                 DataCell(
                                   ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      showUpdateDialog(context, client);
+                                    },
                                     child: const Text(
                                       'Update',
                                       style: TextStyle(
@@ -193,6 +190,139 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void showUpdateDialog(BuildContext context, Client client) {
+    final TextEditingController nameController =
+        TextEditingController(text: client.name);
+    final TextEditingController nicController =
+        TextEditingController(text: client.nic);
+    final TextEditingController addressController =
+        TextEditingController(text: client.address);
+    final TextEditingController mobileController =
+        TextEditingController(text: client.mobile);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Update Details for ${client.name}"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: "Name"),
+                ),
+                TextField(
+                  controller: nicController,
+                  decoration: const InputDecoration(labelText: "NIC"),
+                ),
+                TextField(
+                  controller: addressController,
+                  decoration: const InputDecoration(labelText: "Address"),
+                ),
+                TextField(
+                  controller: mobileController,
+                  decoration: const InputDecoration(labelText: "Mobile"),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Close"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Implement the update functionality here
+                print("Updated Name: ${nameController.text}");
+                print("Updated NIC: ${nicController.text}");
+                print("Updated Address: ${addressController.text}");
+                print("Updated Mobile: ${mobileController.text}");
+                Navigator.pop(context);
+              },
+              child: const Text("Update"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class Client {
+  final String id;
+  final String name;
+  final String nic;
+  final String address;
+  final String mobile;
+  final String typeOfInsurance;
+  final String presentInsurer;
+  final int spouseAge;
+  final int noOfFamilyMembers;
+  final int noOfChild;
+  final String statusType;
+  final int monthlyIncome;
+  final int monthlyExpenses;
+  final String remark;
+  final String createdBy;
+  final String createdDateTime;
+  final String modifiedBy;
+  final String modifiedDateTime;
+  final String branchId;
+  final String regionId;
+
+  Client({
+    required this.id,
+    required this.name,
+    required this.nic,
+    required this.address,
+    required this.mobile,
+    required this.typeOfInsurance,
+    required this.presentInsurer,
+    required this.spouseAge,
+    required this.noOfFamilyMembers,
+    required this.noOfChild,
+    required this.statusType,
+    required this.monthlyIncome,
+    required this.monthlyExpenses,
+    required this.remark,
+    required this.createdBy,
+    required this.createdDateTime,
+    required this.modifiedBy,
+    required this.modifiedDateTime,
+    required this.branchId,
+    required this.regionId,
+  });
+
+  factory Client.fromJson(Map<String, dynamic> json) {
+    return Client(
+      id: json['id'],
+      name: json['name'],
+      nic: json['nic'],
+      address: json['address'],
+      mobile: json['mobile'],
+      typeOfInsurance: json['typeOfInsurance'],
+      presentInsurer: json['presentInsurer'],
+      spouseAge: json['spouseAge'],
+      noOfFamilyMembers: json['noOfFamilyMembers'],
+      noOfChild: json['noOfChild'],
+      statusType: json['statusType'],
+      monthlyIncome: json['monthlyIncome'],
+      monthlyExpenses: json['monthlyExpences'], // Corrected field
+      remark: json['remark'],
+      createdBy: json['createdBy'],
+      createdDateTime: json['createdDateTime'],
+      modifiedBy: json['modifiedBy'],
+      modifiedDateTime: json['modifiedDateTime'],
+      branchId: json['branchId'],
+      regionId: json['regionId'],
     );
   }
 }

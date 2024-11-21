@@ -7,15 +7,8 @@ import 'package:flutter_application_coop/screens/my_collection_screen.dart';
 import 'package:flutter_application_coop/screens/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
-  final String username;
-  final String name;
-  final String branch;
-
   const MainScreen({
     super.key,
-    required this.username,
-    required this.name,
-    required this.branch,
   });
 
   @override
@@ -33,20 +26,11 @@ class _MainScreenState extends State<MainScreen> {
 
     // Initialize the pages list in initState
     pages = [
-      HomeScreen(
-        username: widget.username,
-        name: widget.name,
-        branch: widget.branch,
-      ), // Pass the username here
+      HomeScreen(), // Pass the username here
       AddRecordScreen(),
       MakePaymentScreen(),
-      MyCollectionScreen(
-        username: widget.username,
-      ),
-      ProfileScreen(
-        name: widget.name,
-        branch: widget.branch,
-      ),
+      MyCollectionScreen(),
+      ProfileScreen(),
     ];
   }
 

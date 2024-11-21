@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_coop/constants/colors.dart';
 import 'package:flutter_application_coop/constants/constants.dart';
 import 'package:flutter_application_coop/screens/login_screen.dart';
+import 'package:flutter_application_coop/services/user_services.dart';
 import 'package:flutter_application_coop/widgets/profile_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final String name;
-  final String branch;
   const ProfileScreen({
     super.key,
-    required this.name,
-    required this.branch,
   });
 
   @override
@@ -18,8 +16,24 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  //String userName = "Sandeep";
-  //String email = "s@gmail.com";
+  //for store the username,name,branch
+  String usernameNew = "";
+  String branch = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUsername(); // Load the username from SharedPreferences
+  }
+
+  Future<void> _loadUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      usernameNew =
+          prefs.getString('username') ?? 'Guest'; // Default to "Guest" if null
+      branch = prefs.getString('branch') ?? 'Unknown Branch';
+    });
+  }
 
   //open scaffold message for logout
   void _showBottomSheet(BuildContext context) {
@@ -53,14 +67,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: const ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(kGreen),
                     ),
-                    onPressed: () {
-                      //
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginScreen(), // Pass username
-                        ),
-                      );
+                    onPressed: () async {
+                      //clear the user data
+                      await UserServices.clearUserData();
+
+                      //navigate to the onboarding screen
+                      if (context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const LoginScreen(), // Pass username
+                          ),
+                          (route) => false,
+                        );
+                      }
                     },
                     child: const Text(
                       "Yes",
@@ -133,14 +154,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Welcome ${widget.name}",
+                          "Welcome $usernameNew",
                           style: const TextStyle(
                             fontSize: 21,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
-                          widget.branch,
+                          branch,
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
