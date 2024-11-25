@@ -202,6 +202,23 @@ class _HomeScreenState extends State<HomeScreen> {
         TextEditingController(text: client.address);
     final TextEditingController mobileController =
         TextEditingController(text: client.mobile);
+    final TextEditingController spouseAgeController =
+        TextEditingController(text: client.spouseAge.toString());
+    final TextEditingController familyMembersController =
+        TextEditingController(text: client.noOfFamilyMembers.toString());
+    final TextEditingController childrenController =
+        TextEditingController(text: client.noOfChild.toString());
+    final TextEditingController insurerController =
+        TextEditingController(text: client.presentInsurer);
+    final TextEditingController incomeController =
+        TextEditingController(text: client.monthlyIncome.toString());
+    final TextEditingController expensesController =
+        TextEditingController(text: client.monthlyExpenses.toString());
+    final TextEditingController remarkController =
+        TextEditingController(text: client.remark);
+
+    String selectedStatus = client.statusType; // Married or Single
+    String selectedInsuranceType = client.typeOfInsurance; // Monthly, etc.
 
     showDialog(
       context: context,
@@ -226,7 +243,83 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 TextField(
                   controller: mobileController,
-                  decoration: const InputDecoration(labelText: "Mobile"),
+                  decoration: const InputDecoration(labelText: "Mobile No"),
+                ),
+                DropdownButtonFormField<String>(
+                  value: selectedStatus.isNotEmpty &&
+                          ['Married', 'Single'].contains(selectedStatus)
+                      ? selectedStatus
+                      : 'Married', // Provide a fallback value
+                  items: ['Married', 'Single']
+                      .map((status) => DropdownMenuItem(
+                            value: status,
+                            child: Text(status),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedStatus = value!;
+                    });
+                  },
+                  decoration: const InputDecoration(labelText: "Status"),
+                ),
+                TextField(
+                  controller: spouseAgeController,
+                  decoration: const InputDecoration(labelText: "Spouse Age"),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: familyMembersController,
+                  decoration:
+                      const InputDecoration(labelText: "No of Family Members"),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: childrenController,
+                  decoration:
+                      const InputDecoration(labelText: "No of Children"),
+                  keyboardType: TextInputType.number,
+                ),
+                DropdownButtonFormField<String>(
+                  value: selectedInsuranceType.isNotEmpty &&
+                          ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly']
+                              .contains(selectedInsuranceType)
+                      ? selectedInsuranceType
+                      : 'Monthly', // Provide a fallback value
+                  items: ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly']
+                      .map((type) => DropdownMenuItem(
+                            value: type,
+                            child: Text(type),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedInsuranceType = value!;
+                    });
+                  },
+                  decoration:
+                      const InputDecoration(labelText: "Type of Insurance"),
+                ),
+                TextField(
+                  controller: insurerController,
+                  decoration:
+                      const InputDecoration(labelText: "Present Insurer"),
+                ),
+                TextField(
+                  controller: incomeController,
+                  decoration:
+                      const InputDecoration(labelText: "Monthly Income"),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: expensesController,
+                  decoration:
+                      const InputDecoration(labelText: "Monthly Expenses"),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: remarkController,
+                  decoration: const InputDecoration(labelText: "Remark"),
                 ),
               ],
             ),
@@ -240,11 +333,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Implement the update functionality here
+                // Update functionality
                 print("Updated Name: ${nameController.text}");
                 print("Updated NIC: ${nicController.text}");
-                print("Updated Address: ${addressController.text}");
-                print("Updated Mobile: ${mobileController.text}");
+                print("Updated Status: $selectedStatus");
+                print("Updated Insurance Type: $selectedInsuranceType");
                 Navigator.pop(context);
               },
               child: const Text("Update"),
@@ -260,23 +353,23 @@ class Client {
   final String id;
   final String name;
   final String nic;
-  final String address;
-  final String mobile;
+  final String? address;
+  final String? mobile;
   final String typeOfInsurance;
-  final String presentInsurer;
-  final int spouseAge;
-  final int noOfFamilyMembers;
-  final int noOfChild;
+  final String? presentInsurer;
+  final int? spouseAge;
+  final int? noOfFamilyMembers;
+  final int? noOfChild;
   final String statusType;
-  final int monthlyIncome;
-  final int monthlyExpenses;
-  final String remark;
-  final String createdBy;
-  final String createdDateTime;
-  final String modifiedBy;
-  final String modifiedDateTime;
-  final String branchId;
-  final String regionId;
+  final int? monthlyIncome;
+  final int? monthlyExpenses;
+  final String? remark;
+  final String? createdBy;
+  final String? createdDateTime;
+  final String? modifiedBy;
+  final String? modifiedDateTime;
+  final String? branchId;
+  final String? regionId;
 
   Client({
     required this.id,
