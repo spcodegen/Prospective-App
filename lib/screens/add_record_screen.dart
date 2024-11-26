@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:flutter_application_coop/constants/colors.dart';
-import 'package:flutter_application_coop/widgets/custom_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddRecordScreen extends StatefulWidget {
   const AddRecordScreen({super.key});
@@ -25,9 +28,80 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       TextEditingController();
   final TextEditingController _monthlyIncomeController =
       TextEditingController();
-  final TextEditingController _monthlyExpencesController =
+  final TextEditingController _monthlyExpensesController =
       TextEditingController();
   final TextEditingController _remarkController = TextEditingController();
+
+  Future<void> _saveData() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Retrieve saved data
+      final createdBy = prefs.getString('createdBy');
+      final branchId = prefs.getString('branchId');
+      final regionId = prefs.getString('regionId');
+
+      final data = {
+        "name": _nameController.text,
+        "nic": _nicController.text,
+        "address": _addressController.text,
+        "mobile": _mobileController.text,
+        "status": _status,
+        "insurance": _insurance,
+        "spouseAge": int.tryParse(_spouseAgeController.text) ?? 0,
+        "noOfFamilyMembers":
+            int.tryParse(_noOfFamilyMembersController.text) ?? 0,
+        "noOfChild": int.tryParse(_noOfChildController.text) ?? 0,
+        "presentInsurer": _presentInsurerController.text,
+        "monthlyIncome": int.tryParse(_monthlyIncomeController.text) ?? 0,
+        "monthlyExpences": int.tryParse(_monthlyExpensesController.text) ?? 0,
+        "remark": _remarkController.text,
+        "createdBy": createdBy,
+        "branchId": branchId,
+        "regionId": regionId,
+      };
+
+      try {
+        final response = await http.post(
+          Uri.parse('http://client.cooplife.lk:8006/CoopLifeProspective'),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonEncode(data),
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Data saved successfully!')),
+          );
+          _formKey.currentState?.reset();
+          _nameController.clear();
+          _nicController.clear();
+          _addressController.clear();
+          _mobileController.clear();
+          _spouseAgeController.clear();
+          _noOfFamilyMembersController.clear();
+          _noOfChildController.clear();
+          _presentInsurerController.clear();
+          _monthlyIncomeController.clear();
+          _monthlyExpensesController.clear();
+          _remarkController.clear();
+          setState(() {
+            _status = null;
+            _insurance = null;
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save data. Please try again.')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,25 +109,21 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 15,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 15),
             child: Stack(
               children: [
-                //Form Title
                 const Padding(
                   padding: EdgeInsets.all(10),
                   child: Text(
                     "New Record",
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 32,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-                //user data form
                 Container(
-                  height: MediaQuery.of(context).size.height * 1.5,
+                  height: MediaQuery.of(context).size.height * 2,
                   margin: EdgeInsets.only(
                     top: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -67,272 +137,187 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            //Name field
-                            TextFormField(
-                              controller: _nameController,
-                              decoration: InputDecoration(
-                                labelText: 'Name',
-                                //hintText: "Name",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //NIC field
-                            TextFormField(
-                              controller: _nicController,
-                              decoration: InputDecoration(
-                                labelText: "NIC",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //Address field
-                            TextFormField(
-                              controller: _addressController,
-                              decoration: InputDecoration(
-                                labelText: "Address",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //Mobile Number field
-                            TextFormField(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 10),
+                          _buildTextField(
+                              controller: _nameController, label: "Name"),
+                          _buildTextField(
+                              controller: _nicController, label: "NIC"),
+                          _buildTextField(
+                              controller: _addressController, label: "Address"),
+                          _buildTextField(
                               controller: _mobileController,
-                              decoration: InputDecoration(
-                                labelText: "Mobile No",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
+                              label: "Mobile No"),
+                          _buildDropdownField(
+                            value: _status,
+                            label: "Status",
+                            items: const [
+                              DropdownMenuItem(
+                                value: "Married",
+                                child: Text("Married"),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //status selector dropdown
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: 'Status',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
+                              DropdownMenuItem(
+                                value: "Single",
+                                child: Text("Single"),
                               ),
-                              value: _status,
-                              onChanged: (value) =>
-                                  setState(() => _status = value),
-                              items: const [
-                                DropdownMenuItem<String>(
-                                  value: 'Married',
-                                  child: Text('Married'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'Single',
-                                  child: Text('Single'),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //no of family members field
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: "No of Family Members",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
+                            ],
+                            onChanged: (value) =>
+                                setState(() => _status = value),
+                          ),
+                          _buildTextField(
+                              controller: _spouseAgeController,
+                              label: "Spouse Age",
+                              isNumeric: true),
+                          _buildTextField(
+                              controller: _noOfFamilyMembersController,
+                              label: "No of Family Members",
+                              isNumeric: true),
+                          _buildTextField(
+                              controller: _noOfChildController,
+                              label: "No of Child",
+                              isNumeric: true),
+                          _buildDropdownField(
+                            value: _insurance,
+                            label: "Type of Insurance",
+                            items: const [
+                              DropdownMenuItem(
+                                value: "Monthly",
+                                child: Text("Monthly"),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //No of Child field
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: "No of Child",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
+                              DropdownMenuItem(
+                                value: "Quarterly",
+                                child: Text("Quarterly"),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //insurance selector dropdown
-                            DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                labelText: 'Type of Insurance',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
+                              DropdownMenuItem(
+                                value: "Half Yearly",
+                                child: Text("Half Yearly"),
                               ),
-                              value: _insurance,
-                              onChanged: (value) =>
-                                  setState(() => _insurance = value),
-                              items: const [
-                                DropdownMenuItem<String>(
-                                  value: 'Monthly',
-                                  child: Text('Monthly'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'Quarterly',
-                                  child: Text('Quarterly'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'Half Yearly',
-                                  child: Text('Half Yearly'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: 'Yearly',
-                                  child: Text('Yearly'),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //Present Insurer
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: "Present Insurer",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
+                              DropdownMenuItem(
+                                value: "Yearly",
+                                child: Text("Yearly"),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //Monthly Income
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: "Monthly Income",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                            ],
+                            onChanged: (value) =>
+                                setState(() => _insurance = value),
+                          ),
+                          _buildTextField(
+                              controller: _presentInsurerController,
+                              label: "Present Insurer"),
+                          _buildTextField(
+                              controller: _monthlyIncomeController,
+                              label: "Monthly Income",
+                              isNumeric: true),
+                          _buildTextField(
+                              controller: _monthlyExpensesController,
+                              label: "Monthly Expenses",
+                              isNumeric: true),
+                          _buildTextField(
+                              controller: _remarkController, label: "Remark"),
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed: _saveData,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: kGreen,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
+                                child: const Text("Save"),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //Monthly Expences
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: "Monthly Expences",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: kRed,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
+                                child: const Text("Cancel"),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            //Remark
-                            TextFormField(
-                              decoration: InputDecoration(
-                                labelText: "Remark",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                  horizontal: 20,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 12,
-                            ),
-                            const Divider(
-                              color: kLightGrey,
-                              thickness: 3,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            CustomButton(
-                              buttonName: "Save",
-                              buttonColor: kGreen,
-                            ),
-                            const SizedBox(
-                              height: 15,
-                            ),
-                            CustomButton(
-                              buttonName: "Cancel",
-                              buttonColor: kRed,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                          ],
-                        )),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    bool isNumeric = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          if (isNumeric && int.tryParse(value) == null) {
+            return 'Please enter a valid number for $label';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String? value,
+    required String label,
+    required List<DropdownMenuItem<String>> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: DropdownButtonFormField<String>(
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        ),
+        value: value,
+        onChanged: onChanged,
+        items: items,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select $label';
+          }
+          return null;
+        },
       ),
     );
   }

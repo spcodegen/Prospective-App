@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_coop/constants/colors.dart';
-import 'package:flutter_application_coop/model/client.dart';
 import 'package:flutter_application_coop/services/user_services.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -64,9 +64,47 @@ class _HomeScreenState extends State<HomeScreen> {
               .map((clientData) => clientData as Map<String, dynamic>)
               .toList();
         });
+
+        // Save createdBy, branchId, regionId to SharedPreferences
+        final client =
+            Client.fromJson(data[0]); // Assuming first client data is available
+        saveToSharedPreferences(client);
       } else {
         print(
             'Error: Failed to fetch data, status code ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  // Method to save the data to SharedPreferences
+  Future<void> saveToSharedPreferences(Client client) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('createdBy', client.createdBy ?? 'Unknown');
+    await prefs.setString('branchId', client.branchId ?? 'Unknown');
+    await prefs.setString('regionId', client.regionId ?? 'Unknown');
+    print(
+        'Data saved to SharedPreferences: createdBy=${client.createdBy}, branchId=${client.branchId}, regionId=${client.regionId}');
+  }
+
+  //add new
+  Future<void> updateClientDetails(Client client) async {
+    final Uri apiUrl =
+        Uri.parse('http://client.cooplife.lk:8006/CoopLifeProspective');
+    try {
+      final response = await http.put(
+        apiUrl,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(client.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        print('Client details updated successfully');
+        fetchData(); // Refresh data
+      } else {
+        print(
+            'Error: Failed to update client, status code ${response.statusCode}');
       }
     } catch (e) {
       print('Error: $e');
@@ -148,43 +186,60 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 10,
             ),
-            // Data Table section
+            // Data Table with Pagination and Scrollable Content
             Expanded(
               child: filteredData == null
                   ? const Center(child: CircularProgressIndicator())
                   : filteredData!.isEmpty
                       ? const Center(
-                          child: Text("No data found for this user."))
-                      : DataTable(
-                          columns: const [
-                            DataColumn(label: Text("Name")),
-                            DataColumn(label: Text("NIC")),
-                            DataColumn(label: Text("Action")),
-                          ],
-                          rows: filteredData!.map((clientData) {
-                            final client = Client.fromJson(clientData);
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(client.name)),
-                                DataCell(Text(client.nic)),
-                                DataCell(
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showUpdateDialog(context, client);
-                                    },
-                                    child: const Text(
-                                      'Update',
+                          child: Text("No data found for this user."),
+                        )
+                      : SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0), // Adds padding
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                    height: 20), // Space above the table
+                                Container(
+                                  width: double
+                                      .infinity, // Ensures full width within the padding
+                                  child: PaginatedDataTable(
+                                    header: const Text(
+                                      "Client Records",
                                       style: TextStyle(
-                                        fontSize: 10,
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
+                                    columns: const [
+                                      DataColumn(label: Text("Name")),
+                                      DataColumn(label: Text("NIC")),
+                                      DataColumn(label: Text("Action")),
+                                    ],
+                                    source: ClientDataTableSource(
+                                      clients: filteredData!
+                                          .map((clientData) =>
+                                              Client.fromJson(clientData))
+                                          .toList(),
+                                      onUpdatePressed: (client) {
+                                        showUpdateDialog(context, client);
+                                      },
+                                    ),
+                                    rowsPerPage: 5, // Number of rows per page
+                                    columnSpacing: 50,
+                                    horizontalMargin: 10,
+                                    showCheckboxColumn: false,
                                   ),
-                                )
+                                ),
+                                const SizedBox(
+                                    height: 20), // Space below the table
                               ],
-                            );
-                          }).toList(),
+                            ),
+                          ),
                         ),
             ),
           ],
@@ -217,8 +272,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final TextEditingController remarkController =
         TextEditingController(text: client.remark);
 
-    String selectedStatus = client.statusType; // Married or Single
-    String selectedInsuranceType = client.typeOfInsurance; // Monthly, etc.
+    String selectedStatus = client.statusType ?? 'Single'; // Married or Single
+    String selectedInsuranceType =
+        client.typeOfInsurance ?? 'Monthly'; // Monthly, etc.
 
     showDialog(
       context: context,
@@ -331,13 +387,35 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: const Text("Close"),
             ),
+            //add new
             ElevatedButton(
               onPressed: () {
-                // Update functionality
-                print("Updated Name: ${nameController.text}");
-                print("Updated NIC: ${nicController.text}");
-                print("Updated Status: $selectedStatus");
-                print("Updated Insurance Type: $selectedInsuranceType");
+                // Update the client object with the new values from the TextControllers
+                client.name = nameController.text;
+                client.nic = nicController.text;
+                client.address = addressController.text;
+                client.mobile = mobileController.text;
+                client.spouseAge =
+                    int.tryParse(spouseAgeController.text) ?? client.spouseAge;
+                client.noOfFamilyMembers =
+                    int.tryParse(familyMembersController.text) ??
+                        client.noOfFamilyMembers;
+                client.noOfChild =
+                    int.tryParse(childrenController.text) ?? client.noOfChild;
+                client.statusType = selectedStatus;
+                client.typeOfInsurance = selectedInsuranceType;
+                client.presentInsurer = insurerController.text;
+                client.monthlyIncome =
+                    int.tryParse(incomeController.text) ?? client.monthlyIncome;
+                client.monthlyExpenses =
+                    int.tryParse(expensesController.text) ??
+                        client.monthlyExpenses;
+                client.remark = remarkController.text;
+
+                // Send updated client details to API
+                updateClientDetails(client);
+
+                // Close the dialog after updating
                 Navigator.pop(context);
               },
               child: const Text("Update"),
@@ -350,26 +428,26 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class Client {
-  final String id;
-  final String name;
-  final String nic;
-  final String? address;
-  final String? mobile;
-  final String typeOfInsurance;
-  final String? presentInsurer;
-  final int? spouseAge;
-  final int? noOfFamilyMembers;
-  final int? noOfChild;
-  final String statusType;
-  final int? monthlyIncome;
-  final int? monthlyExpenses;
-  final String? remark;
-  final String? createdBy;
-  final String? createdDateTime;
-  final String? modifiedBy;
-  final String? modifiedDateTime;
-  final String? branchId;
-  final String? regionId;
+  String id;
+  String name;
+  String nic;
+  String? address;
+  String? mobile;
+  String? typeOfInsurance;
+  String? presentInsurer;
+  int? spouseAge;
+  int? noOfFamilyMembers;
+  int? noOfChild;
+  String? statusType;
+  int? monthlyIncome;
+  int? monthlyExpenses;
+  String? remark;
+  String? createdBy;
+  String? createdDateTime;
+  String? modifiedBy;
+  String? modifiedDateTime;
+  String? branchId;
+  String? regionId;
 
   Client({
     required this.id,
@@ -418,4 +496,70 @@ class Client {
       regionId: json['regionId'],
     );
   }
+
+  // Method to convert a Client instance to a JSON object // add new
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'nic': nic,
+      'address': address,
+      'mobile': mobile,
+      'typeOfInsurance': typeOfInsurance,
+      'presentInsurer': presentInsurer,
+      'spouseAge': spouseAge,
+      'noOfFamilyMembers': noOfFamilyMembers,
+      'noOfChild': noOfChild,
+      'statusType': statusType,
+      'monthlyIncome': monthlyIncome,
+      'monthlyExpences': monthlyExpenses,
+      'remark': remark,
+      'createdBy': createdBy,
+      'createdDateTime': createdDateTime,
+      'modifiedBy': modifiedBy,
+      'modifiedDateTime': modifiedDateTime,
+      'branchId': branchId,
+      'regionId': regionId,
+    };
+  }
+}
+
+class ClientDataTableSource extends DataTableSource {
+  final List<Client> clients;
+  final Function(Client) onUpdatePressed;
+
+  ClientDataTableSource({required this.clients, required this.onUpdatePressed});
+
+  @override
+  DataRow? getRow(int index) {
+    if (index >= clients.length) return null;
+
+    final client = clients[index];
+    return DataRow(
+      cells: [
+        DataCell(Text(client.name)),
+        DataCell(Text(client.nic)),
+        DataCell(
+          ElevatedButton(
+            onPressed: () => onUpdatePressed(client),
+            child: const Text(
+              'Update',
+              style: TextStyle(
+                fontSize: 10,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  bool get isRowCountApproximate => false;
+
+  @override
+  int get rowCount => clients.length;
+
+  @override
+  int get selectedRowCount => 0;
 }
