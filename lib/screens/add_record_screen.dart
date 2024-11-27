@@ -72,7 +72,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
         if (response.statusCode == 200 || response.statusCode == 201) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Data saved successfully!')),
+            const SnackBar(content: Text('Data saved successfully!')),
           );
           _formKey.currentState?.reset();
           _nameController.clear();
@@ -92,7 +92,8 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save data. Please try again.')),
+            const SnackBar(
+                content: Text('Failed to save data. Please try again.')),
           );
         }
       } catch (e) {
@@ -123,7 +124,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                   ),
                 ),
                 Container(
-                  height: MediaQuery.of(context).size.height * 2,
+                  height: MediaQuery.of(context).size.height * 1.7,
                   margin: EdgeInsets.only(
                     top: MediaQuery.of(context).size.height * 0.1,
                   ),
@@ -135,24 +136,39 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                     ),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 10,
+                    ),
                     child: Form(
                       key: _formKey,
                       child: Column(
                         children: [
                           const SizedBox(height: 10),
                           _buildTextField(
-                              controller: _nameController, label: "Name"),
+                            controller: _nameController,
+                            label: "Name",
+                            isRequired: true,
+                          ),
                           _buildTextField(
-                              controller: _nicController, label: "NIC"),
+                            controller: _nicController,
+                            label: "NIC",
+                            isRequired: true,
+                          ),
                           _buildTextField(
-                              controller: _addressController, label: "Address"),
+                            controller: _addressController,
+                            label: "Address",
+                            isRequired: true,
+                          ),
                           _buildTextField(
-                              controller: _mobileController,
-                              label: "Mobile No"),
+                            controller: _mobileController,
+                            label: "Mobile No",
+                            isRequired: true,
+                          ),
                           _buildDropdownField(
                             value: _status,
                             label: "Status",
+                            isRequired: true,
                             items: const [
                               DropdownMenuItem(
                                 value: "Married",
@@ -167,20 +183,23 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 setState(() => _status = value),
                           ),
                           _buildTextField(
-                              controller: _spouseAgeController,
-                              label: "Spouse Age",
-                              isNumeric: true),
+                            controller: _spouseAgeController,
+                            label: "Spouse Age",
+                          ),
                           _buildTextField(
-                              controller: _noOfFamilyMembersController,
-                              label: "No of Family Members",
-                              isNumeric: true),
+                            controller: _noOfFamilyMembersController,
+                            label: "No of Family Members",
+                            isNumeric: true,
+                          ),
                           _buildTextField(
-                              controller: _noOfChildController,
-                              label: "No of Child",
-                              isNumeric: true),
+                            controller: _noOfChildController,
+                            label: "No of Child",
+                            isNumeric: true,
+                          ),
                           _buildDropdownField(
                             value: _insurance,
                             label: "Type of Insurance",
+                            isRequired: true,
                             items: const [
                               DropdownMenuItem(
                                 value: "Monthly",
@@ -203,18 +222,23 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 setState(() => _insurance = value),
                           ),
                           _buildTextField(
-                              controller: _presentInsurerController,
-                              label: "Present Insurer"),
+                            controller: _presentInsurerController,
+                            label: "Present Insurer",
+                          ),
                           _buildTextField(
-                              controller: _monthlyIncomeController,
-                              label: "Monthly Income",
-                              isNumeric: true),
+                            controller: _monthlyIncomeController,
+                            label: "Monthly Income",
+                            isNumeric: true,
+                          ),
                           _buildTextField(
-                              controller: _monthlyExpensesController,
-                              label: "Monthly Expenses",
-                              isNumeric: true),
+                            controller: _monthlyExpensesController,
+                            label: "Monthly Expenses",
+                            isNumeric: true,
+                          ),
                           _buildTextField(
-                              controller: _remarkController, label: "Remark"),
+                            controller: _remarkController,
+                            label: "Remark",
+                          ),
                           const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -223,8 +247,10 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 onPressed: _saveData,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: kGreen,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 15,
+                                    horizontal: 20,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -265,6 +291,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     required TextEditingController controller,
     required String label,
     bool isNumeric = false,
+    bool isRequired = false,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -280,10 +307,13 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
               const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         ),
         validator: (value) {
-          if (value == null || value.isEmpty) {
+          if (isRequired && (value == null || value.isEmpty)) {
             return 'Please enter $label';
           }
-          if (isNumeric && int.tryParse(value) == null) {
+          if (isNumeric &&
+              value != null &&
+              value.isNotEmpty &&
+              int.tryParse(value) == null) {
             return 'Please enter a valid number for $label';
           }
           return null;
@@ -297,6 +327,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
     required String label,
     required List<DropdownMenuItem<String>> items,
     required ValueChanged<String?> onChanged,
+    bool isRequired = false,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -313,7 +344,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
         onChanged: onChanged,
         items: items,
         validator: (value) {
-          if (value == null || value.isEmpty) {
+          if (isRequired && (value == null || value.isEmpty)) {
             return 'Please select $label';
           }
           return null;

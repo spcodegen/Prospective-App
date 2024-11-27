@@ -7,44 +7,82 @@ import 'package:flutter_application_coop/widgets/profile_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({
-    super.key,
-  });
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  //for store the username,name,branch
   String usernameNew = "";
   String branch = "";
 
   @override
   void initState() {
     super.initState();
-    _loadUsername(); // Load the username from SharedPreferences
+    _loadUsername();
   }
 
   Future<void> _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      usernameNew =
-          prefs.getString('username') ?? 'Guest'; // Default to "Guest" if null
+      usernameNew = prefs.getString('username') ?? 'Guest';
       branch = prefs.getString('branch') ?? 'Unknown Branch';
     });
   }
 
-  //open scaffold message for logout
+  void _showContactUsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Contact Us"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                "assets/logo.png", // Replace with your company logo image path
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Address: 455, Galle Road, Colombo 03, Sri Lanka",
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Phone: Dinith - (+94 71 0233087)",
+                style: TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Email: sdu@coopinsu.com",
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return Container(
           height: 200,
-          padding: const EdgeInsets.all(
-            kDefaultPadding,
-          ),
+          padding: const EdgeInsets.all(kDefaultPadding),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -57,9 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: kBlack,
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -68,16 +104,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: WidgetStatePropertyAll(kGreen),
                     ),
                     onPressed: () async {
-                      //clear the user data
                       await UserServices.clearUserData();
-
-                      //navigate to the onboarding screen
                       if (context.mounted) {
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const LoginScreen(), // Pass username
+                            builder: (context) => const LoginScreen(),
                           ),
                           (route) => false,
                         );
@@ -147,9 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -170,9 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      width: 20,
-                    ),
+                    const SizedBox(width: 20),
                     IconButton(
                       onPressed: () {},
                       icon: Container(
@@ -190,13 +218,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                const ProfileCard(
-                  icon: Icons.call,
-                  title: "Contact Us",
-                  color: kGrey,
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {
+                    _showContactUsDialog(context);
+                  },
+                  child: const ProfileCard(
+                    icon: Icons.call,
+                    title: "Contact Us",
+                    color: kGrey,
+                  ),
                 ),
                 const ProfileCard(
                   icon: Icons.verified_user_rounded,

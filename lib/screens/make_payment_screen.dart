@@ -59,7 +59,10 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 25),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 35,
+          ),
           child: Form(
             key: _formKey,
             child: Column(

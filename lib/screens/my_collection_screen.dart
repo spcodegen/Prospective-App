@@ -111,7 +111,7 @@ class _MyCollectionScreenState extends State<MyCollectionScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 15,
-            vertical: 25,
+            vertical: 35,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
