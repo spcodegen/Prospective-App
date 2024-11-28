@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MakePaymentScreen extends StatefulWidget {
   const MakePaymentScreen({super.key});
@@ -13,9 +14,43 @@ class MakePaymentScreen extends StatefulWidget {
 class _MakePaymentScreenState extends State<MakePaymentScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _policyNoController = TextEditingController();
+  final TextEditingController _mobileNumberController = TextEditingController();
+  final TextEditingController _paidAmountController = TextEditingController();
+  final TextEditingController _confirmPaidAmountController =
+      TextEditingController();
+
+  String? selectedReceiptCategory;
   Map<String, dynamic> policyData = {};
   bool isDataLoaded = false;
   bool isLoading = false;
+  bool isSaving = false;
+
+  // Variables to hold data from SharedPreferences
+  String? createdBy;
+
+  final List<String> receiptCategories = [
+    "Renewal Receipts",
+    "Deposit Receipts",
+    "Policy Loan Settlement Receipts",
+    "Policy fee",
+    "Alteration fee",
+    "Special revival fee",
+    "Duplicate Policy fee",
+    "Loan fee",
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStoredData();
+  }
+
+  Future<void> _loadStoredData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      createdBy = prefs.getString("createdBy");
+    });
+  }
 
   Future<void> fetchPolicyData(String policyNo) async {
     setState(() {
@@ -33,24 +68,85 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
           isDataLoaded = true;
         });
       } else {
-        setState(() {
-          isDataLoaded = false;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed to load policy data")),
-          );
-        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to load policy data")),
+        );
       }
     } catch (e) {
-      setState(() {
-        isDataLoaded = false;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-        );
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
     } finally {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> savePaymentData() async {
+    if (_formKey.currentState!.validate() && selectedReceiptCategory != null) {
+      if (_paidAmountController.text != _confirmPaidAmountController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text("Paid Amount and Confirm Paid Amount do not match")),
+        );
+        return;
+      }
+
+      setState(() {
+        isSaving = true;
+      });
+
+      final url =
+          Uri.parse('http://client.cooplife.lk:8006/PolicyPaymentDetails');
+      final payload = {
+        "createdBy": createdBy ?? "defaultCreatedBy",
+        "cusAddress": policyData["cusAddress"] ?? "",
+        "cusName": policyData["cusName"] ?? "",
+        "mobile": policyData["mobileNo"] ?? "",
+        "modifiedBy": createdBy ?? "defaultCreatedBy",
+        "newMobile": _mobileNumberController.text,
+        "nic": policyData["nic"],
+        "payment": int.tryParse(_paidAmountController.text) ?? 0,
+        "policyNo": policyData["policyNo"] ?? 0,
+        "receiptsCategory": selectedReceiptCategory ?? "",
+        "status": "ACTIVE",
+        "statusType": "Paid",
+        "type": policyData["coverType"] ?? "",
+      };
+
+      try {
+        final response = await http.post(
+          url,
+          headers: {"Content-Type": "application/json"},
+          body: json.encode(payload),
+        );
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Payment saved successfully")),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Failed to save payment")),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
+      } finally {
+        setState(() {
+          isSaving = false;
+        });
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "Please fill all fields, select a receipt category, and confirm the paid amount")),
+      );
     }
   }
 
@@ -60,7 +156,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: 10,
+            horizontal: 25,
             vertical: 35,
           ),
           child: Form(
@@ -68,7 +164,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
                     Icon(Icons.article, color: Colors.blue, size: 30),
                     SizedBox(width: 8),
@@ -81,57 +177,74 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   "Enter Policy Number",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 TextFormField(
                   controller: _policyNoController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: "Policy Number",
                     border: OutlineInputBorder(),
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
                     if (_policyNoController.text.isNotEmpty) {
                       fetchPolicyData(_policyNoController.text);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Please enter a policy number")),
+                        const SnackBar(
+                            content: Text("Please enter a policy number")),
                       );
                     }
                   },
-                  child:
-                      isLoading ? CircularProgressIndicator() : Text("Search"),
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text("Search"),
                 ),
                 if (isDataLoaded) ...[
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Policy Details",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   buildNonEditableField(
-                      label: "Customer Name",
-                      value: policyData["cusName"] ?? "N/A"),
+                    label: "Policy Holder",
+                    value: policyData["cusName"] ?? "N/A",
+                  ),
                   buildNonEditableField(
-                      label: "Customer Address",
-                      value: policyData["cusAddress"] ?? "N/A"),
+                    label: "Address",
+                    value: policyData["cusAddress"] ?? "N/A",
+                  ),
                   buildNonEditableField(
-                      label: "NIC", value: policyData["nic"] ?? "N/A"),
+                    label: "NIC",
+                    value: policyData["nic"] ?? "N/A",
+                  ),
                   buildNonEditableField(
-                      label: "Mobile No",
-                      value: policyData["mobileNo"] ?? "N/A"),
+                    label: "Policy Category",
+                    value: policyData["coverType"] ?? "N/A",
+                  ),
                   buildNonEditableField(
-                      label: "Cover Type",
-                      value: policyData["coverType"] ?? "N/A"),
+                    label: "Policy Status",
+                    value: policyData["polStatus"] ?? "N/A",
+                  ),
                   buildNonEditableField(
-                      label: "Policy Status",
-                      value: policyData["polStatus"] ?? "N/A"),
-                  SizedBox(height: 20),
-                  Row(
+                    label: "Mobile No",
+                    value: policyData["mobileNo"] ?? "N/A",
+                  ),
+                  const SizedBox(height: 20),
+                  const Row(
                     children: [
                       Icon(Icons.attach_money, color: Colors.green, size: 30),
                       SizedBox(width: 8),
@@ -144,7 +257,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   if (policyData["policyPaymentResponses"] != null &&
                       (policyData["policyPaymentResponses"] as List).isNotEmpty)
                     PaginatedDataTable(
@@ -163,7 +276,88 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                     ),
                   if (policyData["policyPaymentResponses"] == null ||
                       (policyData["policyPaymentResponses"] as List).isEmpty)
-                    Center(child: Text("No payment data available")),
+                    const Center(child: Text("No payment data available")),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "New Payment Entry",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: selectedReceiptCategory,
+                    items: receiptCategories.map((category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedReceiptCategory = value;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      labelText: "Receipt Category",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _mobileNumberController,
+                    decoration: const InputDecoration(
+                      labelText: "New Mobile Number",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter a mobile number";
+                      }
+                      if (value.length != 10) {
+                        return 'Mobile number must be exactly 10 digits';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _paidAmountController,
+                    decoration: const InputDecoration(
+                      labelText: "Paid Amount",
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter a paid amount";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _confirmPaidAmountController,
+                    decoration: const InputDecoration(
+                      labelText: "Confirm Paid Amount",
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please confirm the paid amount";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: savePaymentData,
+                    child: isSaving
+                        ? const CircularProgressIndicator()
+                        : const Text("Save Payment"),
+                  ),
                 ],
               ],
             ),
@@ -177,10 +371,19 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        Text(value, style: TextStyle(fontSize: 16)),
-        SizedBox(height: 10),
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          initialValue: value,
+          readOnly: true,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 10),
       ],
     );
   }
@@ -191,32 +394,18 @@ class PaymentDataSource extends DataTableSource {
 
   PaymentDataSource({required this.payments});
 
-  String formatDate(String? dateTimeString) {
-    if (dateTimeString == null || dateTimeString.isEmpty) {
-      return "N/A";
-    }
-    try {
-      final dateTime = DateTime.parse(dateTimeString);
-      return "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
-    } catch (e) {
-      return "Invalid Date";
-    }
-  }
-
   @override
-  DataRow? getRow(int index) {
-    if (index >= payments.length) return null;
-    final payment = payments[index];
+  DataRow getRow(int index) {
+    if (index >= payments.length) return const DataRow(cells: []);
 
-    return DataRow(
-      cells: [
-        DataCell(Text(payment["type"] ?? "N/A")),
-        DataCell(Text(payment["payment"]?.toString() ?? "N/A")),
-        DataCell(Text(formatDate(payment["dueDate"]))),
-        DataCell(Text(formatDate(payment["paidDate"]))),
-        DataCell(Text(payment["status"] ?? "N/A")),
-      ],
-    );
+    final payment = payments[index];
+    return DataRow(cells: [
+      DataCell(Text(payment["type"] ?? "N/A")),
+      DataCell(Text(payment["payment"]?.toString() ?? "N/A")),
+      DataCell(Text(payment["dueDate"] ?? "N/A")),
+      DataCell(Text(payment["paidDate"] ?? "N/A")),
+      DataCell(Text(payment["status"] ?? "N/A")),
+    ]);
   }
 
   @override

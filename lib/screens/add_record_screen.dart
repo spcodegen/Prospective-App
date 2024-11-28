@@ -137,7 +137,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
+                      horizontal: 25,
                       vertical: 10,
                     ),
                     child: Form(
