@@ -399,11 +399,18 @@ class PaymentDataSource extends DataTableSource {
     if (index >= payments.length) return const DataRow(cells: []);
 
     final payment = payments[index];
+
+    // Extract only the date part from dueDate and paidDate
+    String formatDate(String? dateTime) {
+      if (dateTime == null || dateTime.isEmpty) return "N/A";
+      return dateTime.split(" ").first; // Extracts date before the space
+    }
+
     return DataRow(cells: [
       DataCell(Text(payment["type"] ?? "N/A")),
       DataCell(Text(payment["payment"]?.toString() ?? "N/A")),
-      DataCell(Text(payment["dueDate"] ?? "N/A")),
-      DataCell(Text(payment["paidDate"] ?? "N/A")),
+      DataCell(Text(formatDate(payment["dueDate"]))), // Show only date
+      DataCell(Text(formatDate(payment["paidDate"]))), // Show only date
       DataCell(Text(payment["status"] ?? "N/A")),
     ]);
   }

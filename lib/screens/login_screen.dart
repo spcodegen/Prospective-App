@@ -72,12 +72,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 }
                                 return null;
                               },
+                              isNumeric: true,
                             ),
                             const SizedBox(
                               height: 14,
                             ),
                             _buildTextField(
                               controller: _passwordController,
+                              obscureText: true,
                               labelText: 'Password',
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -181,11 +183,14 @@ class _LoginScreenState extends State<LoginScreen> {
     required TextEditingController controller,
     required String labelText,
     required String? Function(String?) validator,
+    bool isNumeric = false,
+    bool obscureText = false,
   }) {
     return SizedBox(
       width: 400,
       child: TextFormField(
         controller: controller,
+        keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: const TextStyle(

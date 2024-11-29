@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'Data saved to SharedPreferences: createdBy=${client.createdBy}, branchId=${client.branchId}, regionId=${client.regionId}');
   }
 
-  //add new
+  //Update client details
   Future<void> updateClientDetails(Client client) async {
     final Uri apiUrl =
         Uri.parse('http://client.cooplife.lk:8006/CoopLifeProspective');
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           radius: 22.5,
                           child: ClipOval(
                             child: Image.asset(
-                              "assets/user.jpg",
+                              "assets/userNew.png",
                               width: 45,
                               fit: BoxFit.cover,
                             ),

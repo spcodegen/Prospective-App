@@ -236,11 +236,13 @@ class _CollectionDataSource extends DataTableSource {
   DataRow? getRow(int index) {
     if (index >= data.length) return null;
     final item = data[index];
+
     return DataRow(cells: [
       DataCell(Text(item['policyNo'] ?? '')),
       DataCell(Text(item['cusName'] ?? '')),
       DataCell(Text(item['payment'].toString())),
-      DataCell(Text(item['paidDate'] ?? '')),
+      DataCell(Text(item['modifiedDateTime'] ??
+          'N/A')), // Directly display modifiedDateTime
     ]);
   }
 
