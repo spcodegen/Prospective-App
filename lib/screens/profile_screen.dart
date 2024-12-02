@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_coop/constants/colors.dart';
 import 'package:flutter_application_coop/constants/constants.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_application_coop/screens/login_screen.dart';
 import 'package:flutter_application_coop/services/user_services.dart';
 import 'package:flutter_application_coop/widgets/profile_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -25,10 +27,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      usernameNew = prefs.getString('username') ?? 'Guest';
-      branch = prefs.getString('branch') ?? 'Unknown Branch';
-    });
+    final String? userJson = prefs.getString('userDetails');
+
+    if (userJson != null) {
+      final userMap = json.decode(userJson);
+      setState(() {
+        usernameNew = userMap['name'] ?? 'Guest';
+        branch = userMap['branch'] ?? 'Unknown Branch';
+      });
+    } else {
+      setState(() {
+        usernameNew = 'Guest';
+        branch = 'Unknown Branch';
+      });
+    }
+  }
+
+  Future<void> _updatePassword(String newPassword) async {
+    try {
+      // Load user details from SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? userJson = prefs.getString('userDetails');
+
+      if (userJson == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("User data not found!")),
+        );
+        return;
+      }
+
+      // Parse the stored user data
+      final Map<String, dynamic> userMap = json.decode(userJson);
+      userMap['pw'] = newPassword; // Update the password in the user data
+
+      // Create the URI for the API call
+      final Uri apiUrl = Uri.parse('http://client.cooplife.lk:8006/PerUser');
+
+      // Send the PUT request
+      final response = await http.put(
+        apiUrl,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(userMap),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Password updated successfully!")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to update password.")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $e")),
+      );
+    }
   }
 
   void _showContactUsDialog(BuildContext context) {
@@ -41,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Image.asset(
-                "assets/logo.png", // Replace with your company logo image path
+                "assets/logo.png",
                 width: 100,
                 height: 100,
                 fit: BoxFit.cover,
@@ -66,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Close the dialog
+                Navigator.pop(context);
               },
               child: const Text("Close"),
             ),
@@ -144,6 +199,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final TextEditingController passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Change Password"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Enter your new password below:"),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: "New Password",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newPassword = passwordController.text.trim();
+                if (newPassword.isNotEmpty) {
+                  _updatePassword(newPassword);
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Password cannot be empty!")),
+                  );
+                }
+              },
+              child: const Text("Change Password"),
+            ),
+          ],
         );
       },
     );
@@ -229,10 +334,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: kGrey,
                   ),
                 ),
-                const ProfileCard(
-                  icon: Icons.verified_user_rounded,
-                  title: "Change Password",
-                  color: kYellow,
+                GestureDetector(
+                  onTap: () {
+                    _showChangePasswordDialog(context);
+                  },
+                  child: const ProfileCard(
+                    icon: Icons.verified_user_rounded,
+                    title: "Change Password",
+                    color: kYellow,
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {
