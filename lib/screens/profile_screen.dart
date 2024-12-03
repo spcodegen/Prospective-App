@@ -27,59 +27,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userJson = prefs.getString('userDetails');
-
-    if (userJson != null) {
-      final userMap = json.decode(userJson);
-      setState(() {
-        usernameNew = userMap['name'] ?? 'Guest';
-        branch = userMap['branch'] ?? 'Unknown Branch';
-      });
-    } else {
-      setState(() {
-        usernameNew = 'Guest';
-        branch = 'Unknown Branch';
-      });
-    }
+    setState(() {
+      usernameNew = prefs.getString('username') ?? 'Guest';
+      branch = prefs.getString('branch') ?? 'Unknown Branch';
+    });
   }
 
   Future<void> _updatePassword(String newPassword) async {
     try {
-      // Load user details from SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String? userJson = prefs.getString('userDetails');
+      Map<String, dynamic> userData = await UserServices.getUserData();
 
-      if (userJson == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User data not found!")),
-        );
-        return;
-      }
+      // Allow `status` to remain null if it is not present
+      final String? status = userData['status']; // No default value assigned
 
-      // Parse the stored user data
-      final Map<String, dynamic> userMap = json.decode(userJson);
-      userMap['pw'] = newPassword; // Update the password in the user data
+      // Create the updated payload
+      final Map<String, dynamic> updatedData = {
+        'id': userData['id'],
+        'bucode': userData['bucode'],
+        'percode': userData['percode'],
+        'name': userData['name'],
+        'soflevelcode': userData['soflevelcode'],
+        'sotdesc': userData['sotdesc'],
+        'branch': userData['branch'],
+        'contactno': userData['contactno'],
+        'overrider': userData['overrider'],
+        'address': userData['address'],
+        'brId': userData['brId'],
+        'regonid': userData['regonid'],
+        'zoneid': userData['zoneid'],
+        'pw': newPassword,
+        'status': status, // Status remains null if not set
+      };
 
-      // Create the URI for the API call
+      print("Sending payload: ${json.encode(updatedData)}");
+
       final Uri apiUrl = Uri.parse('http://client.cooplife.lk:8006/PerUser');
-
-      // Send the PUT request
       final response = await http.put(
         apiUrl,
         headers: {"Content-Type": "application/json"},
-        body: json.encode(userMap),
+        body: json.encode(updatedData),
       );
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Password updated successfully!")),
         );
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('pw', newPassword);
       } else {
+        print("API Error: ${response.body}");
+        print("Status Code: ${response.statusCode}");
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to update password.")),
+          SnackBar(
+              content: Text("Failed to update password: ${response.body}")),
         );
       }
     } catch (e) {
+      print("Exception: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("An error occurred: $e")),
       );

@@ -113,20 +113,28 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
             padding: const EdgeInsets.symmetric(vertical: 15),
             child: Stack(
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    "New Record",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w500,
+                Container(
+                  color: kGreen.withOpacity(0.4),
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height * 1,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 25,
+                      vertical: 25,
+                    ),
+                    child: Text(
+                      "Add a Record",
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
                 Container(
                   height: MediaQuery.of(context).size.height * 1.7,
                   margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height * 0.1,
+                    top: MediaQuery.of(context).size.height * 0.15,
                   ),
                   decoration: const BoxDecoration(
                     color: kWhite,
@@ -248,14 +256,20 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: kGreen,
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 15,
-                                    horizontal: 20,
+                                    vertical: 14,
+                                    horizontal: 50,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: const Text("Save"),
+                                child: const Text(
+                                  "Save",
+                                  style: TextStyle(
+                                    color: kBlack,
+                                    fontSize: 14,
+                                  ),
+                                ),
                               ),
                               ElevatedButton(
                                 onPressed: () {
@@ -263,13 +277,21 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: kRed,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                    horizontal: 50,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: const Text("Cancel"),
+                                child: const Text(
+                                  "Cancel",
+                                  style: TextStyle(
+                                    color: kBlack,
+                                    fontSize: 14,
+                                  ),
+                                ),
                               ),
                             ],
                           ),

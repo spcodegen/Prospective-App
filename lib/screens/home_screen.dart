@@ -211,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     header: const Text(
                                       "Client Records",
                                       style: TextStyle(
-                                        fontSize: 28,
+                                        fontSize: 30,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -231,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     rowsPerPage: 5, // Number of rows per page
                                     columnSpacing: 50,
-                                    horizontalMargin: 10,
+                                    horizontalMargin: 15,
                                     showCheckboxColumn: false,
                                   ),
                                 ),
@@ -542,10 +542,15 @@ class ClientDataTableSource extends DataTableSource {
         DataCell(
           ElevatedButton(
             onPressed: () => onUpdatePressed(client),
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  const Color(0xFF0D6EFD), // Set the button color to blue
+            ),
             child: const Text(
               'Update',
               style: TextStyle(
                 fontSize: 10,
+                color: kWhite,
               ),
             ),
           ),

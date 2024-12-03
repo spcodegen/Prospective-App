@@ -88,7 +88,7 @@ class UserServices {
     String? regonid = prefs.getString('regonid');
     String? zoneid = prefs.getString('zoneid');
     String? pw = prefs.getString('pw');
-    String? status = prefs.getString('status');
+    String? status = prefs.getString('status'); // No default value
 
     print(
         "Retrieved from SharedPreferences: id=$id, name=$name, branch=$branch, username=$userName, bucode=$bucode, percode=$percode, soflevelcode=$soflevelcode, sotdesc=$sotdesc, contactno=$contactno, overrider=$overrider, address=$address, brId=$brId, regonid=$regonid, zoneid=$zoneid, pw=$pw, status=$status");
@@ -109,7 +109,7 @@ class UserServices {
       'regonid': regonid ?? '',
       'zoneid': zoneid ?? '',
       'pw': pw ?? '',
-      'status': status ?? '',
+      'status': status, // Can be null
     };
   }
 
