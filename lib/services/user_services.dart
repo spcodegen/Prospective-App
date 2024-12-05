@@ -132,5 +132,8 @@ class UserServices {
     await prefs.remove('zoneid');
     await prefs.remove('pw');
     await prefs.remove('status');
+    await prefs.remove('createdBy');
+    await prefs.remove('branchId');
+    await prefs.remove('regionId');
   }
 }

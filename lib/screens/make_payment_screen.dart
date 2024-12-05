@@ -192,6 +192,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                     hintText: "Policy Number",
                     border: OutlineInputBorder(),
                   ),
+                  keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(

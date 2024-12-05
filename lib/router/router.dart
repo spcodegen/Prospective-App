@@ -29,10 +29,7 @@ class RouterClass {
         name: "home",
         path: "/home",
         builder: (context, state) {
-          final String username = state.extra as String;
-          final String name = state.extra as String;
-          final String branch = state.extra as String;
-          return MainScreen();
+          return const MainScreen();
         },
       ),
     ],

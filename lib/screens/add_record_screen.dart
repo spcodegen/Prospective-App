@@ -72,7 +72,11 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
         if (response.statusCode == 200 || response.statusCode == 201) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Data saved successfully!')),
+            const SnackBar(
+              content: Text('Data saved successfully!'),
+              duration: Duration(seconds: 3),
+              backgroundColor: Colors.green,
+            ),
           );
           _formKey.currentState?.reset();
           _nameController.clear();

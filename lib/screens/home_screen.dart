@@ -101,6 +101,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         print('Client details updated successfully');
+        // Show success message in Snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Client details updated successfully!'),
+            duration: Duration(seconds: 3),
+            backgroundColor: Colors.green,
+          ),
+        );
         fetchData(); // Refresh data
       } else {
         print(

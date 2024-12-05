@@ -22,110 +22,120 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.greenAccent,
-        ),
-        child: Scaffold(
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 30,
-                vertical: 40,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(
-                    height: 75,
-                  ),
-                  Image.asset(
-                    "assets/logo.png",
-                    fit: BoxFit.cover,
-                    width: 100,
-                  ),
-                  const Text(
-                    "LOGIN",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
+      child: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              "assets/background.png", // Replace with your image path
+              fit: BoxFit.cover, // Ensures the image covers the entire screen
+            ),
+          ),
+          // Login Screen Content
+          Scaffold(
+            backgroundColor:
+                Colors.transparent, // Make the scaffold transparent
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                  vertical: 40,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      height: 75,
                     ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Form(
-                    key: _formKey,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        children: [
-                          _buildTextField(
-                            controller: _userNameController,
-                            labelText: 'User Name',
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter User Name';
-                              }
-                              return null;
-                            },
-                            isNumeric: true,
-                          ),
-                          const SizedBox(
-                            height: 14,
-                          ),
-                          _buildTextField(
-                            controller: _passwordController,
-                            obscureText: true,
-                            labelText: 'Password',
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter Password';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(
-                            height: 25,
-                          ),
-                          SizedBox(
-                            width: 280,
-                            height: 50,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                backgroundColor: Colors.green,
-                                elevation: 10,
-                                shadowColor: const Color.fromARGB(255, 6, 6, 6),
-                              ),
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  await _loginUser();
+                    Image.asset(
+                      "assets/logo.png",
+                      fit: BoxFit.cover,
+                      width: 100,
+                    ),
+                    const Text(
+                      "LOGIN",
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Form(
+                      key: _formKey,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          children: [
+                            _buildTextField(
+                              controller: _userNameController,
+                              labelText: 'User Name',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter User Name';
                                 }
+                                return null;
                               },
-                              child: const Text(
-                                'Login Now',
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 0, 0, 0),
-                                  fontFamily: 'Georgia',
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
+                              isNumeric: true,
+                            ),
+                            const SizedBox(
+                              height: 14,
+                            ),
+                            _buildTextField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              labelText: 'Password',
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter Password';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(
+                              height: 25,
+                            ),
+                            SizedBox(
+                              width: 280,
+                              height: 50,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  backgroundColor: Colors.green,
+                                  elevation: 10,
+                                  shadowColor:
+                                      const Color.fromARGB(255, 6, 6, 6),
+                                ),
+                                onPressed: () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    await _loginUser();
+                                  }
+                                },
+                                child: const Text(
+                                  'Login Now',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                    //fontFamily: 'Georgia',
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -219,15 +229,12 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: const TextStyle(
-            color: kBlack,
-            fontSize: 12,
-          ),
-          hintStyle: const TextStyle(
-            color: kBlack,
+            color: kWhite,
+            fontSize: 14,
           ),
           border: OutlineInputBorder(
             borderSide: const BorderSide(
-              color: kBlack,
+              color: kWhite,
               width: 1,
             ),
             borderRadius: BorderRadius.circular(15),
@@ -235,6 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
           contentPadding: const EdgeInsets.all(15),
         ),
         validator: validator,
+        obscureText: obscureText,
       ),
     );
   }
