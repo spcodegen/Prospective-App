@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_coop/constants/colors.dart';
+import 'package:flutter_application_coop/services/config.dart';
 import 'package:flutter_application_coop/services/user_services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final Uri apiUrl = Uri.parse(
-        'http://client.cooplife.lk:8006/CoopLifeProspective/username/$usernameNew');
+        '${AppConfig.baseURL}/CoopLifeProspective/username/$usernameNew');
 
     try {
       final response = await http.get(apiUrl);
@@ -90,8 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //Update client details
   Future<void> updateClientDetails(Client client) async {
-    final Uri apiUrl =
-        Uri.parse('http://client.cooplife.lk:8006/CoopLifeProspective');
+    final Uri apiUrl = Uri.parse('${AppConfig.baseURL}/CoopLifeProspective');
     try {
       final response = await http.put(
         apiUrl,

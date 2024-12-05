@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_coop/constants/colors.dart';
 import 'package:flutter_application_coop/constants/constants.dart';
 import 'package:flutter_application_coop/screens/login_screen.dart';
+import 'package:flutter_application_coop/services/config.dart';
 import 'package:flutter_application_coop/services/user_services.dart';
 import 'package:flutter_application_coop/widgets/profile_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,7 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       print("Sending payload: ${json.encode(updatedData)}");
 
-      final Uri apiUrl = Uri.parse('http://client.cooplife.lk:8006/PerUser');
+      final Uri apiUrl = Uri.parse('${AppConfig.baseURL}/PerUser');
       final response = await http.put(
         apiUrl,
         headers: {"Content-Type": "application/json"},

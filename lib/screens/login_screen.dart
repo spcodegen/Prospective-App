@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_coop/constants/colors.dart';
 import 'package:flutter_application_coop/screens/main_screen.dart';
+import 'package:flutter_application_coop/services/config.dart';
 import 'package:flutter_application_coop/services/user_services.dart';
 import 'package:http/http.dart' as http;
 
@@ -144,9 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final String userName = _userNameController.text;
     final String password = _passwordController.text;
 
-    final Uri apiUrl = Uri.parse(
-        'http://client.cooplife.lk:8006/PerUser/login/$userName/$password');
-
+    final Uri apiUrl =
+        Uri.parse('${AppConfig.baseURL}/PerUser/login/$userName/$password');
+    //'http://client.cooplife.lk:8006/PerUser/login/$userName/$password');
     try {
       final response = await http.get(apiUrl);
 

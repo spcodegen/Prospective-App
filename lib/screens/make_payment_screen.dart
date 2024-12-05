@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_coop/services/config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -98,8 +99,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
         isSaving = true;
       });
 
-      final url =
-          Uri.parse('http://client.cooplife.lk:8006/PolicyPaymentDetails');
+      final url = Uri.parse('${AppConfig.baseURL}/PolicyPaymentDetails');
       final payload = {
         "createdBy": createdBy ?? "defaultCreatedBy",
         "cusAddress": policyData["cusAddress"] ?? "",

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_coop/services/config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -63,7 +64,7 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
 
       try {
         final response = await http.post(
-          Uri.parse('http://client.cooplife.lk:8006/CoopLifeProspective'),
+          Uri.parse('${AppConfig.baseURL}/CoopLifeProspective'),
           headers: {
             "Content-Type": "application/json",
           },
@@ -277,7 +278,23 @@ class _AddRecordScreenState extends State<AddRecordScreen> {
                               ),
                               ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  // Clear all fields and reset dropdowns
+                                  _formKey.currentState?.reset();
+                                  _nameController.clear();
+                                  _nicController.clear();
+                                  _addressController.clear();
+                                  _mobileController.clear();
+                                  _spouseAgeController.clear();
+                                  _noOfFamilyMembersController.clear();
+                                  _noOfChildController.clear();
+                                  _presentInsurerController.clear();
+                                  _monthlyIncomeController.clear();
+                                  _monthlyExpensesController.clear();
+                                  _remarkController.clear();
+                                  setState(() {
+                                    _status = null;
+                                    _insurance = null;
+                                  });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: kRed,

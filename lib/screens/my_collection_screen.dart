@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_coop/services/config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
@@ -21,8 +22,7 @@ class _MyCollectionScreenState extends State<MyCollectionScreen> {
   List<dynamic> collectionData = [];
   bool isLoading = false;
 
-  final apiBaseUrl =
-      'http://client.cooplife.lk:8006/PolicyPaymentDetails/DateRange';
+  final apiBaseUrl = '${AppConfig.baseURL}/PolicyPaymentDetails/DateRange';
 
   @override
   void initState() {
