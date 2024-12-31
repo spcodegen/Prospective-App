@@ -4,6 +4,7 @@ import 'package:flutter_application_coop/screens/add_record_screen.dart';
 import 'package:flutter_application_coop/screens/home_screen.dart';
 import 'package:flutter_application_coop/screens/make_payment_screen.dart';
 import 'package:flutter_application_coop/screens/my_collection_screen.dart';
+import 'package:flutter_application_coop/screens/new_business_screen.dart';
 import 'package:flutter_application_coop/screens/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -28,6 +29,7 @@ class _MainScreenState extends State<MainScreen> {
     pages = [
       HomeScreen(), // Pass the username here
       AddRecordScreen(),
+      NewBusinessScreen(),
       MakePaymentScreen(),
       MyCollectionScreen(),
       ProfileScreen(),
@@ -56,6 +58,10 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.library_add),
             label: "Record",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_outline_sharp),
+            label: "Business",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.currency_exchange),
