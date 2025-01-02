@@ -97,8 +97,26 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
   }
 
   void saveForm() {
+    if (paymentType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Please select Cash or Cheque payment type.")),
+      );
+      return; // Stop further execution
+    }
+
     if (_formKey.currentState!.validate()) {
       try {
+        // Check if Paid Amount matches Confirm Amount
+        if (paidAmountController.text != confirmAmountController.text) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content:
+                    Text("Paid Amount and Confirm Paid Amount must match.")),
+          );
+          return; // Stop further execution
+        }
+
         final dob = DateTime.parse(dobController.text); // Parse DOB
         final now = DateTime.now();
         final age = now.year -
@@ -125,6 +143,11 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
           const SnackBar(content: Text("Invalid Date of Birth format.")),
         );
       }
+    } else {
+      // Show a snackbar for general validation error
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in all required fields.")),
+      );
     }
   }
 
@@ -336,6 +359,12 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                   DropdownButtonFormField<String>(
                     value: selectedBank,
                     decoration: const InputDecoration(labelText: "Bank"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a Bank';
+                      }
+                      return null;
+                    },
                     items: bankList
                         .map((bank) => DropdownMenuItem(
                               value: bank,
@@ -347,11 +376,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                   TextFormField(
                     controller: chequeNoController,
                     decoration: const InputDecoration(labelText: "Cheque No"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter the Cheque Number';
+                      }
+                      return null;
+                    },
                   ),
                   TextFormField(
-                    controller: dobController,
-                    decoration:
-                        const InputDecoration(labelText: "Date of Birth"),
+                    controller: chequeDateController,
+                    decoration: const InputDecoration(labelText: "Cheque Date"),
                     onTap: () async {
                       FocusScope.of(context).requestFocus(FocusNode());
                       DateTime? pickedDate = await showDatePicker(
@@ -361,13 +395,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                         lastDate: DateTime.now(),
                       );
                       if (pickedDate != null) {
-                        dobController.text =
+                        chequeDateController.text =
                             "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
                       }
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please select your Date of Birth';
+                        return 'Please select the Cheque Date';
+                      }
+                      if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
+                        return 'Invalid date format. Use YYYY-MM-DD.';
                       }
                       return null;
                     },
@@ -375,21 +412,57 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                   TextFormField(
                     controller: paidAmountController,
                     decoration: const InputDecoration(labelText: "Paid Amount"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter the Paid Amount';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Please enter a valid numeric value';
+                      }
+                      return null;
+                    },
                   ),
                   TextFormField(
                     controller: confirmAmountController,
                     decoration:
                         const InputDecoration(labelText: "Confirm Paid Amount"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm the Paid Amount';
+                      }
+                      if (value != paidAmountController.text) {
+                        return 'Amounts do not match';
+                      }
+                      return null;
+                    },
                   ),
                 ] else if (paymentType == "Cash") ...[
                   TextFormField(
                     controller: paidAmountController,
                     decoration: const InputDecoration(labelText: "Paid Amount"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter the Paid Amount';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Please enter a valid numeric value';
+                      }
+                      return null;
+                    },
                   ),
                   TextFormField(
                     controller: confirmAmountController,
                     decoration:
                         const InputDecoration(labelText: "Confirm Paid Amount"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm the Paid Amount';
+                      }
+                      if (value != paidAmountController.text) {
+                        return 'Amounts do not match';
+                      }
+                      return null;
+                    },
                   ),
                 ],
                 Row(
