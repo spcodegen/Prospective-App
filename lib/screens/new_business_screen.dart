@@ -98,10 +98,33 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
 
   void saveForm() {
     if (_formKey.currentState!.validate()) {
-      // Save data logic here
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Form Saved Successfully!")),
-      );
+      try {
+        final dob = DateTime.parse(dobController.text); // Parse DOB
+        final now = DateTime.now();
+        final age = now.year -
+            dob.year -
+            ((now.month < dob.month) ||
+                    (now.month == dob.month && now.day < dob.day)
+                ? 1
+                : 0);
+
+        if (age < 18 || age > 100) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text("Age must be between 18 and 100 years.")),
+          );
+          return; // Stop further execution
+        }
+
+        // Proceed with form submission logic
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Form Saved Successfully!")),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Invalid Date of Birth format.")),
+        );
+      }
     }
   }
 
@@ -272,13 +295,20 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     );
                     if (pickedDate != null) {
                       dobController.text =
-                          "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+                          "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
                     }
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select your Date of Birth';
+                    }
+                    return null;
                   },
                 ),
                 TextFormField(
                   controller: mobileController,
                   decoration: const InputDecoration(labelText: "Mobile Number"),
+                  keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter Mobile Number';
@@ -319,20 +349,27 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     decoration: const InputDecoration(labelText: "Cheque No"),
                   ),
                   TextFormField(
-                    controller: chequeDateController,
-                    decoration: const InputDecoration(labelText: "Cheque Date"),
+                    controller: dobController,
+                    decoration:
+                        const InputDecoration(labelText: "Date of Birth"),
                     onTap: () async {
                       FocusScope.of(context).requestFocus(FocusNode());
                       DateTime? pickedDate = await showDatePicker(
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate: DateTime(1900),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                        lastDate: DateTime.now(),
                       );
                       if (pickedDate != null) {
-                        chequeDateController.text =
-                            "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+                        dobController.text =
+                            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
                       }
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select your Date of Birth';
+                      }
+                      return null;
                     },
                   ),
                   TextFormField(
