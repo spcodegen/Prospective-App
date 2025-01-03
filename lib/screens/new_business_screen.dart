@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NewBusinessScreen extends StatefulWidget {
   const NewBusinessScreen({super.key});
@@ -21,6 +22,10 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
   List<String> planList = [];
   List<String> bankList = [];
 
+  // Variables to hold data from SharedPreferences
+  String? createdBy;
+  String? modifiedBy;
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController nicController = TextEditingController();
@@ -36,6 +41,15 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
     super.initState();
     fetchPlans();
     fetchBanks();
+    _loadStoredData();
+  }
+
+  Future<void> _loadStoredData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      createdBy = prefs.getString("createdBy");
+      modifiedBy = prefs.getString("modifiedBy");
+    });
   }
 
   Future<void> fetchPlans() async {
@@ -64,14 +78,15 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
-          bankList = List<String>.from(data.map((item) => item['bankName']));
+          bankList = List<String>.from(
+              data.map((item) => "${item['bankName']} - ${item['bankCode']}"));
         });
       } else {
-        throw Exception("Failed to load Bank");
+        throw Exception("Failed to load banks");
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error fetching plans: $e")),
+        SnackBar(content: Text("Error fetching banks: $e")),
       );
     }
   }
@@ -96,7 +111,7 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
     });
   }
 
-  void saveForm() {
+  void saveForm() async {
     if (paymentType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -134,13 +149,54 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
           return; // Stop further execution
         }
 
-        // Proceed with form submission logic
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Form Saved Successfully!")),
+        // Prepare the data object
+        Map<String, dynamic> requestData = {
+          "planName": selectedPlan,
+          "name": nameController.text,
+          "address": addressController.text,
+          "nic": nicController.text,
+          "dateOfBirth": dobController.text,
+          "mobileNo": mobileController.text,
+          "modifiedBy": modifiedBy,
+          "createdBy": createdBy,
+          "term": selectedTerm,
+          "title": selectedTitle,
+          "paidAmount": paidAmountController.text,
+          "paymentType": paymentType,
+          "statusType": "Paid",
+          "newBusinessCode": "",
+        };
+
+        if (paymentType == "Cheque") {
+          // Add cheque-specific fields
+          requestData.addAll({
+            "bank": selectedBank,
+            "checkDate": chequeDateController.text,
+            "checkNo": chequeNoController.text,
+          });
+        }
+
+        // Call the API
+        final response = await http.post(
+          Uri.parse(
+              "http://client.cooplife.lk:8006/NewBusiness"), // Replace with your API endpoint
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(requestData),
         );
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Form Saved Successfully!")),
+          );
+          clearForm(); // Clear the form after successful submission
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Failed to save data: ${response.body}")),
+          );
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Invalid Date of Birth format.")),
+          SnackBar(content: Text("Error: $e")),
         );
       }
     } else {
@@ -359,18 +415,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                   DropdownButtonFormField<String>(
                     value: selectedBank,
                     decoration: const InputDecoration(labelText: "Bank"),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select a Bank';
-                      }
-                      return null;
-                    },
-                    items: bankList
-                        .map((bank) => DropdownMenuItem(
-                              value: bank,
-                              child: Text(bank),
-                            ))
-                        .toList(),
+                    isExpanded: true, // Make sure the dropdown expands fully
+                    items: bankList.map((bank) {
+                      final splitData = bank.split(" - ");
+                      final bankName = splitData[0];
+                      final bankCode = splitData[1];
+                      return DropdownMenuItem(
+                        value: bankCode,
+                        child: Text(bank),
+                      );
+                    }).toList(),
                     onChanged: (value) => setState(() => selectedBank = value),
                   ),
                   TextFormField(
@@ -392,7 +446,7 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate: DateTime(1900),
-                        lastDate: DateTime.now(),
+                        lastDate: DateTime(2500),
                       );
                       if (pickedDate != null) {
                         chequeDateController.text =

@@ -83,10 +83,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> saveToSharedPreferences(Client client) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('createdBy', client.createdBy ?? 'Unknown');
+    await prefs.setString('modifiedBy', client.modifiedBy ?? 'Unknown');
     await prefs.setString('branchId', client.branchId ?? 'Unknown');
     await prefs.setString('regionId', client.regionId ?? 'Unknown');
     print(
-        'Data saved to SharedPreferences: createdBy=${client.createdBy}, branchId=${client.branchId}, regionId=${client.regionId}');
+        'Data saved to SharedPreferences: createdBy=${client.createdBy}, branchId=${client.branchId}, regionId=${client.regionId}, modifiedBy=${client.modifiedBy}');
   }
 
   //Update client details
