@@ -54,9 +54,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 100,
                     ),
                     const Text(
-                      "LOGIN",
+                      "EZY Advisor",
                       style: TextStyle(
-                        fontSize: 32,
+                        fontSize: 34,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const Text(
+                      "Enthusiasm - Zest - Yield",
+                      style: TextStyle(
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.black54,
                       ),

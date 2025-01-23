@@ -181,9 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(width: 20),
                         const Text(
-                          "Prospective\nClient's Record",
+                          "EZY Advisor",
                           style: TextStyle(
-                            fontSize: 26,
+                            fontSize: 30,
                             fontWeight: FontWeight.w700,
                             color: kBlack,
                           ),

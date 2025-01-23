@@ -18,6 +18,7 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
   String? selectedTitle;
   String? selectedBank;
   String? paymentType;
+  String? testType;
 
   List<String> planList = [];
   List<String> bankList = [];
@@ -221,9 +222,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(
+                  height: 10,
+                ),
                 DropdownButtonFormField<String>(
                   value: selectedPlan,
-                  decoration: const InputDecoration(labelText: "Plan"),
+                  decoration: const InputDecoration(
+                    labelText: "Plan",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please select a Plan';
@@ -238,9 +246,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                       .toList(),
                   onChanged: (value) => setState(() => selectedPlan = value),
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 DropdownButtonFormField<String>(
                   value: selectedTerm,
-                  decoration: const InputDecoration(labelText: "Term"),
+                  decoration: const InputDecoration(
+                    labelText: "Term",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please select a Term';
@@ -294,9 +309,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                       .toList(),
                   onChanged: (value) => setState(() => selectedTerm = value),
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 DropdownButtonFormField<String>(
                   value: selectedTitle,
-                  decoration: const InputDecoration(labelText: "Title"),
+                  decoration: const InputDecoration(
+                    labelText: "Title",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please select a Title';
@@ -323,10 +345,15 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                       .toList(),
                   onChanged: (value) => setState(() => selectedTitle = value),
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 TextFormField(
                   controller: nameController,
                   decoration: const InputDecoration(
                     labelText: "Name",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -335,10 +362,15 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 TextFormField(
                   controller: addressController,
                   decoration: const InputDecoration(
                     labelText: "Address",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -347,9 +379,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 TextFormField(
                   controller: nicController,
-                  decoration: const InputDecoration(labelText: "NIC"),
+                  decoration: const InputDecoration(
+                    labelText: "NIC",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter National ID Number';
@@ -361,9 +400,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 TextFormField(
                   controller: dobController,
-                  decoration: const InputDecoration(labelText: "Date of Birth"),
+                  decoration: const InputDecoration(
+                    labelText: "Date of Birth",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                  ),
                   onTap: () async {
                     FocusScope.of(context).requestFocus(FocusNode());
                     DateTime? pickedDate = await showDatePicker(
@@ -384,9 +430,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 TextFormField(
                   controller: mobileController,
-                  decoration: const InputDecoration(labelText: "Mobile Number"),
+                  decoration: const InputDecoration(
+                    labelText: "Mobile Number",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -398,13 +451,18 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     return null;
                   },
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 Row(
                   children: [
                     ElevatedButton(
                       onPressed: () => setState(() => paymentType = "Cash"),
                       child: const Text("Cash"),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(
+                      width: 25,
+                    ),
                     ElevatedButton(
                       onPressed: () => setState(() => paymentType = "Cheque"),
                       child: const Text("Cheque"),
@@ -412,9 +470,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                   ],
                 ),
                 if (paymentType == "Cheque") ...[
+                  const SizedBox(
+                    height: 10,
+                  ),
                   DropdownButtonFormField<String>(
                     value: selectedBank,
-                    decoration: const InputDecoration(labelText: "Bank"),
+                    decoration: const InputDecoration(
+                      labelText: "Bank",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                    ),
                     isExpanded: true, // Make sure the dropdown expands fully
                     items: bankList.map((bank) {
                       final splitData = bank.split(" - ");
@@ -427,9 +492,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     }).toList(),
                     onChanged: (value) => setState(() => selectedBank = value),
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   TextFormField(
                     controller: chequeNoController,
-                    decoration: const InputDecoration(labelText: "Cheque No"),
+                    decoration: const InputDecoration(
+                      labelText: "Cheque No",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter the Cheque Number';
@@ -437,9 +509,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   TextFormField(
                     controller: chequeDateController,
-                    decoration: const InputDecoration(labelText: "Cheque Date"),
+                    decoration: const InputDecoration(
+                      labelText: "Cheque Date",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                    ),
                     onTap: () async {
                       FocusScope.of(context).requestFocus(FocusNode());
                       DateTime? pickedDate = await showDatePicker(
@@ -463,9 +542,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   TextFormField(
                     controller: paidAmountController,
-                    decoration: const InputDecoration(labelText: "Paid Amount"),
+                    decoration: const InputDecoration(
+                      labelText: "Paid Amount",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter the Paid Amount';
@@ -476,10 +562,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   TextFormField(
                     controller: confirmAmountController,
-                    decoration:
-                        const InputDecoration(labelText: "Confirm Paid Amount"),
+                    decoration: const InputDecoration(
+                      labelText: "Confirm Paid Amount",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please confirm the Paid Amount';
@@ -491,9 +583,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     },
                   ),
                 ] else if (paymentType == "Cash") ...[
+                  const SizedBox(
+                    height: 10,
+                  ),
                   TextFormField(
                     controller: paidAmountController,
-                    decoration: const InputDecoration(labelText: "Paid Amount"),
+                    decoration: const InputDecoration(
+                      labelText: "Paid Amount",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter the Paid Amount';
@@ -504,10 +603,16 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   TextFormField(
                     controller: confirmAmountController,
-                    decoration:
-                        const InputDecoration(labelText: "Confirm Paid Amount"),
+                    decoration: const InputDecoration(
+                      labelText: "Confirm Paid Amount",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please confirm the Paid Amount';
@@ -519,6 +624,9 @@ class _NewBusinessScreenState extends State<NewBusinessScreen> {
                     },
                   ),
                 ],
+                const SizedBox(
+                  height: 10,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
